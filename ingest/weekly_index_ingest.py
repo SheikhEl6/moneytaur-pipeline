@@ -1,108 +1,106 @@
 #!/usr/bin/env python3
 """
-Weekly Index Ingestion Script
-
-This module handles the weekly ingestion of financial index data for MoneyTaur pipeline.
-It includes functions for data fetching, validation, and initial processing.
+Weekly Index Ingestion - Stub Implementation
+This module provides stub functionality for reading yearly pages and enumerating weekly links.
 """
 
+import requests
+from bs4 import BeautifulSoup
+from typing import List, Dict
+from urllib.parse import urljoin
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
-import pandas as pd
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class WeeklyIndexIngestor:
-    """
-    Handles weekly ingestion of financial index data.
-    """
+    """Stub implementation for reading yearly pages and enumerating weekly links."""
     
-    def __init__(self, config: Optional[Dict] = None):
-        """
-        Initialize the WeeklyIndexIngestor.
+    def __init__(self, base_url: str = "https://example.com/yearly-data"):
+        self.base_url = base_url
+        self.session = requests.Session()
+        logger.info(f"WeeklyIndexIngestor initialized with base_url: {base_url}")
+    
+    def get_yearly_page(self, year: int) -> str:
+        """Fetch yearly page content.
         
         Args:
-            config: Configuration dictionary for data sources and parameters
-        """
-        self.config = config or {}
-        logger.info("WeeklyIndexIngestor initialized")
-    
-    def fetch_weekly_data(self, start_date: datetime, end_date: datetime) -> pd.DataFrame:
-        """
-        Fetch weekly index data for the specified date range.
-        
-        Args:
-            start_date: Start date for data fetching
-            end_date: End date for data fetching
+            year: Target year for data collection
             
         Returns:
-            DataFrame containing weekly index data
+            HTML content of the yearly page
         """
-        logger.info(f"Fetching data from {start_date} to {end_date}")
-        # TODO: Implement actual data fetching logic
-        return pd.DataFrame()
+        yearly_url = f"{self.base_url}/{year}"
+        logger.info(f"Fetching yearly page: {yearly_url}")
+        
+        # Stub implementation - would make actual HTTP request
+        return f"<html><body>Stub yearly data for {year}</body></html>"
     
-    def validate_data(self, data: pd.DataFrame) -> bool:
-        """
-        Validate the fetched data for completeness and quality.
+    def enumerate_weekly_links(self, yearly_html: str, base_url: str = None) -> List[Dict[str, str]]:
+        """Parse yearly page and extract weekly data links.
         
         Args:
-            data: DataFrame to validate
+            yearly_html: HTML content from yearly page
+            base_url: Base URL for resolving relative links
             
         Returns:
-            True if data is valid, False otherwise
+            List of dictionaries containing weekly link information
         """
-        logger.info("Validating fetched data")
-        # TODO: Implement data validation logic
-        return True
+        logger.info("Enumerating weekly links from yearly page")
+        
+        # Stub implementation - would parse real HTML
+        weekly_links = [
+            {
+                "week": f"2024-W{i:02d}",
+                "url": f"https://example.com/weekly-data/2024/week-{i:02d}",
+                "title": f"Week {i} Data"
+            }
+            for i in range(1, 53)
+        ]
+        
+        logger.info(f"Found {len(weekly_links)} weekly links")
+        return weekly_links
     
-    def save_raw_data(self, data: pd.DataFrame, output_path: str) -> None:
-        """
-        Save raw data to specified path.
+    def process_year(self, year: int) -> List[Dict[str, str]]:
+        """Process a full year and return all weekly links.
         
         Args:
-            data: DataFrame to save
-            output_path: Path where data should be saved
+            year: Target year to process
+            
+        Returns:
+            List of weekly link information
         """
-        logger.info(f"Saving raw data to {output_path}")
-        # TODO: Implement data saving logic
-        pass
-    
-    def run_ingestion(self, lookback_weeks: int = 1) -> None:
-        """
-        Run the complete weekly ingestion process.
+        logger.info(f"Processing year: {year}")
         
-        Args:
-            lookback_weeks: Number of weeks to look back for data ingestion
-        """
-        end_date = datetime.now()
-        start_date = end_date - timedelta(weeks=lookback_weeks)
+        # Get yearly page content
+        yearly_html = self.get_yearly_page(year)
         
-        logger.info(f"Starting weekly ingestion for {lookback_weeks} weeks")
+        # Extract weekly links
+        weekly_links = self.enumerate_weekly_links(yearly_html)
         
-        # Fetch data
-        data = self.fetch_weekly_data(start_date, end_date)
-        
-        # Validate data
-        if self.validate_data(data):
-            # Save raw data
-            output_path = f"raw_data_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
-            self.save_raw_data(data, output_path)
-            logger.info("Weekly ingestion completed successfully")
-        else:
-            logger.error("Data validation failed")
+        return weekly_links
 
 
 def main():
-    """
-    Main entry point for the weekly index ingestion script.
-    """
+    """Main entry point for weekly index ingestion."""
     ingestor = WeeklyIndexIngestor()
-    ingestor.run_ingestion()
+    
+    # Process current and previous year
+    current_year = 2024
+    years_to_process = [current_year, current_year - 1]
+    
+    all_weekly_links = []
+    
+    for year in years_to_process:
+        weekly_links = ingestor.process_year(year)
+        all_weekly_links.extend(weekly_links)
+    
+    logger.info(f"Total weekly links collected: {len(all_weekly_links)}")
+    
+    # In a real implementation, would save or process these links
+    for link in all_weekly_links[:5]:  # Show first 5 as example
+        logger.info(f"Weekly link: {link}")
 
 
 if __name__ == "__main__":
